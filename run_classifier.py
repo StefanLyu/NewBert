@@ -193,7 +193,7 @@ class Classifier(DataProcessor):
         self.out = []
         self.language = "zh"
         label_path = os.path.join(data_dir,'Sale CF.csv')
-        df_out = pd.read_csv(label_path,dtype=str)
+        df_out = pd.read_csv(label_path,dtype=str,header=0,usercols=['Code','DescriptionCn'])
         df_out.dropna(subset=['Code'],inplace=True)
         self.out = list(df_out['Code'].values)
     
@@ -228,7 +228,7 @@ class Classifier(DataProcessor):
             guid = 'test-%d' % index
             text_a = tokenization.convert_to_unicode(str(row[1]))
             text_b = None
-            labels=""
+            labels="999"
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
     def get_labels(self):
