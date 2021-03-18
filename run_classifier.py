@@ -829,7 +829,7 @@ def main(_):
         raise ValueError("Task not found: %s" % (task_name))
 
     processor = processors[task_name](FLAGS.data_dir)
-    print("LEN",len(precessor.out))
+    print("LEN",len(processor.out))
 
     label_list = processor.get_labels()
 
