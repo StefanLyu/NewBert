@@ -193,7 +193,7 @@ class Classifier(DataProcessor):
         self.out = []
         self.language = "zh"
         label_path = os.path.join(data_dir,'Sale CF.csv')
-        df_out = pd.read_csv(label_path,dtype=str,header=0,usercols=['Code','DescriptionCn'])
+        df_out = pd.read_csv(label_path,dtype=str,header=0,usecols=['Code','DescriptionCn'])
         df_out.dropna(subset=['Code'],inplace=True)
         self.out = list(df_out['Code'].values)
     
