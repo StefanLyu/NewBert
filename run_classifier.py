@@ -188,54 +188,51 @@ class DataProcessor(object):
                 lines.append(line)
             return lines
 
-# 自定义 WSDM 数据分类
-class WSDMProcessor(DataProcessor):
-    def get_train_examples(self, data_dir):
-        # 读取数据集
-        file_path = os.path.join(data_dir, 'wsdm_mini.csv')
+class Classifier(DataProcessor):
+    def __init__(self,data_dir):
+        self.out = []
+        self.language = "zh"
+        label_path = os.path.join(data_dir,'Sale CF.csv')
+        df_out = pd.read_csv(label_path,dtype=str)
+        df_out.dropna(subset=['Code'],inplace=True)
+        self.out = list(df_out['Code'].values)
+    
+    def get_train_examples(self,data_dir):
+        file_path = os.path.join(data_dir,'finalData.csv')
         df = pd.read_csv(file_path)
-        # 划分训练集和测试集
-        df_train, self.df_test = train_test_split(df, test_size=0.2)
-        # 再从训练集中划分出一部分验证集
-        df_train, self.df_dev = train_test_split(df_train, test_size=0.2)
+        df_train,self.df_test = train_test_split(df,test_size=0.2)
+        df_train,self.df_dev = train_test_split(df_train,test_size=0.2)
         
         examples = []
-        for index, row in df_train.iterrows():
-            guid = 'train-%d' % index  # 按示例添加唯一 guid
-            text_a = tokenization.convert_to_unicode(str(row[0]))  # title1_zh
-            text_b = tokenization.convert_to_unicode(str(row[1]))  # title2_zh
-            label = row[2]  # label
-            examples.append(InputExample(guid=guid, text_a=text_a,
-                                         text_b=text_b, label=label))
+        for index,row in df_train.iterrows():
+            guid = 'train-%d' % index
+            text_a = tokenization.convert_to_unicode(str(row[1]))
+            text_b = None
+            labels=row[3]
+            examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
-
-    # 验证集
-    def get_dev_examples(self, data_dir):
-        examples = []
-        for index, row in self.df_dev.iterrows():
+    
+    def get_dev_examples(self,data_dir):
+        examples=[]
+        for index,row in self.df_dev.iterrows():
             guid = 'dev-%d' % index
-            text_a = tokenization.convert_to_unicode(str(row[0]))
-            text_b = tokenization.convert_to_unicode(str(row[1]))
-            label = row[2]
-            examples.append(InputExample(guid=guid, text_a=text_a,
-                                         text_b=text_b, label=label))
+            text_a = tokenization.convert_to_unicode(str(row[1]))
+            text_b = None
+            labels=row[3]
+            examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
-
-    # 测试集
-    def get_test_examples(self, data_dir):
-        self.df_test.to_csv("test.csv", index=None)
-        examples = []
-        for index, row in self.df_test.iterrows():
+    def get_test_examples(self,data_dir):
+        self.df_test.to_csv('test.csv',index=False)
+        examples=[]
+        for index,row in self.df_test.iterrows():
             guid = 'test-%d' % index
-            text_a = tokenization.convert_to_unicode(str(row[0]))
-            text_b = tokenization.convert_to_unicode(str(row[1]))
-            label = 'unrelated'  # 随意指定测试数据初始标签
-            examples.append(InputExample(guid=guid, text_a=text_a,
-                                         text_b=text_b, label=label))
+            text_a = tokenization.convert_to_unicode(str(row[1]))
+            text_b = None
+            labels=""
+            examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
-
     def get_labels(self):
-        return ['unrelated', 'agreed', 'disagreed']
+        return self.out
 
 class XnliProcessor(DataProcessor):
     """Processor for the XNLI data set."""
@@ -809,7 +806,7 @@ def main(_):
         "mnli": MnliProcessor,
         "mrpc": MrpcProcessor,
         "xnli": XnliProcessor,
-        "wsdm": WSDMProcessor,
+        "classifier":Classifier,
     }
 
     if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict:
@@ -831,7 +828,8 @@ def main(_):
     if task_name not in processors:
         raise ValueError("Task not found: %s" % (task_name))
 
-    processor = processors[task_name]()
+    processor = processors[task_name](FLAGS.data_dir)
+    print("LEN",len(precessor.out))
 
     label_list = processor.get_labels()
 
