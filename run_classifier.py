@@ -222,8 +222,7 @@ class Classifier(DataProcessor):
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
     def get_test_examples(self,data_dir):
-        file_path = os.path.join(data_dir,'test.csv')
-        self.df_test = pd.read_csv(file_path)
+        self.df_test.to_csv('test.csv',index=False)
         examples=[]
         for index,row in self.df_test.iterrows():
             guid = 'test-%d' % index
