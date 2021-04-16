@@ -195,10 +195,11 @@ class Classifier(DataProcessor):
         label_path = os.path.join(data_dir,'Sale CF.csv')
         df_out = pd.read_csv(label_path,dtype=str,header=0,usecols=['Code','DescriptionCn'])
         df_out.dropna(subset=['Code'],inplace=True)
-        self.out = list(df_out['Code'].values)
+#         self.out = list(df_out['Code'].values)
+        self.out = ["0","1"]
     
     def get_train_examples(self,data_dir):
-        file_path = os.path.join(data_dir,'finalData.csv')
+        file_path = os.path.join(data_dir,'finalData_20210416.csv')
         df = pd.read_csv(file_path)
         df_train,self.df_test = train_test_split(df,test_size=0.2)
         df_train,self.df_dev = train_test_split(df_train,test_size=0.2)
@@ -206,9 +207,9 @@ class Classifier(DataProcessor):
         examples = []
         for index,row in df_train.iterrows():
             guid = 'train-%d' % index
-            text_a = tokenization.convert_to_unicode(str(row[1]))
+            text_a = tokenization.convert_to_unicode(str(row[0]))
             text_b = None
-            labels=row[3]
+            labels=row[1]
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
     
@@ -216,9 +217,9 @@ class Classifier(DataProcessor):
         examples=[]
         for index,row in self.df_dev.iterrows():
             guid = 'dev-%d' % index
-            text_a = tokenization.convert_to_unicode(str(row[1]))
+            text_a = tokenization.convert_to_unicode(str(row[0]))
             text_b = None
-            labels=row[3]
+            labels=row[1]
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
     def get_test_examples(self,data_dir):
@@ -226,9 +227,9 @@ class Classifier(DataProcessor):
         examples=[]
         for index,row in self.df_test.iterrows():
             guid = 'test-%d' % index
-            text_a = tokenization.convert_to_unicode(str(row[1]))
+            text_a = tokenization.convert_to_unicode(str(row[0]))
             text_b = None
-            labels="999"
+            labels="1"
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
     def get_labels(self):
