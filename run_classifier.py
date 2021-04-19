@@ -46,6 +46,8 @@ flags.DEFINE_string(
 
 flags.DEFINE_string("task_name", None, "The name of the task to train.")
 
+flags.DEFINE_string("sheet_name", None, "The name of the sheet in finalData.xlsx.")
+
 flags.DEFINE_string("vocab_file", None,
                     "The vocabulary file that the BERT model was trained on.")
 
@@ -199,8 +201,9 @@ class Classifier(DataProcessor):
         self.out = ["0","1"]
     
     def get_train_examples(self,data_dir):
-        file_path = os.path.join(data_dir,'finalData_20210416.csv')
-        df = pd.read_csv(file_path)
+        file_path = os.path.join(data_dir,'finalData_20210416.xlsx')
+        df = pd.read_excel(file_path,sheet_name=FLAGS.sheet_name)
+        self.df = df.copy()
         df_train,self.df_test = train_test_split(df,test_size=0.2)
         df_train,self.df_dev = train_test_split(df_train,test_size=0.2)
         
@@ -223,7 +226,7 @@ class Classifier(DataProcessor):
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=labels))
         return examples
     def get_test_examples(self,data_dir):
-        self.df_test.to_csv('test.csv',index=False)
+        self.df.to_csv('test.csv',index=False)
         examples=[]
         for index,row in self.df_test.iterrows():
             guid = 'test-%d' % index
