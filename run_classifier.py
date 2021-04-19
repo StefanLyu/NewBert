@@ -228,7 +228,7 @@ class Classifier(DataProcessor):
     def get_test_examples(self,data_dir):
         self.df.to_csv('test.csv',index=False)
         examples=[]
-        for index,row in self.df_test.iterrows():
+        for index,row in self.df.iterrows():
             guid = 'test-%d' % index
             text_a = tokenization.convert_to_unicode(str(row[0]))
             text_b = None
