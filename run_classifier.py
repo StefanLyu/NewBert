@@ -201,9 +201,9 @@ class Classifier(DataProcessor):
         self.out = ["0","1"]
     
     def get_train_examples(self,data_dir):
-#         file_path = os.path.join(data_dir,'finalData_20210416.xlsx')
-        file_path = os.path.join(data_dir,'finalData_20210416.csv')
-#         df = pd.read_excel(file_path,sheet_name=FLAGS.sheet_name)
+        file_path = os.path.join(data_dir,'finalData_20210416.xlsx')
+#         file_path = os.path.join(data_dir,'finalData_20210416.csv')
+        df = pd.read_excel(file_path,sheet_name=FLAGS.sheet_name)
         df = pd.read_csv(file_path)
         self.df = df.copy()
         df_train,self.df_test = train_test_split(df,test_size=0.2)
